@@ -7,11 +7,6 @@ on:
     paths:
       - 'android/**'
       - '.github/workflows/android.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'android/**'
-      - '.github/workflows/android.yml'
   workflow_dispatch:
 
 permissions:
@@ -26,9 +21,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
-      - name: Install Android SDK platform and build tools
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Accept Android SDK licenses
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
@@ -41,7 +35,6 @@ jobs:
           name: infinity-multiple-llm-api-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-      # Pushing a tag like v0.16.0 publishes the APK on the repo's Releases page.
       - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
